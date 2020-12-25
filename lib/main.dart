@@ -23,14 +23,15 @@ class Vocabulary {
 }
 
 Future<List<Vocabulary>> fetchVocabulary() async {
-  final response =
-  await http.get('http://192.168.0.15:8081/', headers: {"Accept": "application/json"});
+  final response = await http.get('http://192.168.0.17:8081/',
+      headers: {"Accept": "application/json"});
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
     var list = json.decode(response.body) as List;
-    List<Vocabulary> vocabularys = list.map((e) => Vocabulary.fromJson(e)).toList();
+    List<Vocabulary> vocabularys =
+        list.map((e) => Vocabulary.fromJson(e)).toList();
     return vocabularys;
   } else {
     // If the server did not return a 200 OK response,
@@ -95,34 +96,40 @@ class _MyHomePageState extends State<MyHomePage> {
           primarySwatch: Colors.blue,
         ),
         home: Scaffold(
-          appBar: AppBar(centerTitle: true, title: new Text(_index.toString(),)),
-          body: FutureBuilder<List<Vocabulary>>(
-              future: futureVocabulary,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  Vocabulary v = snapshot.data[_index];
-                  return PageView.builder(
-                    itemBuilder: (context, position) {
-                      return Container(
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text((v.word + ' (' + v.type + ')'),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
-                              Text(('Definition: ' + v.definition),
-                                  style: TextStyle(fontSize: 20))]),
-                      );
-                    },
-                    itemCount: snapshot.data.length,
-                    controller: _controller,
-                    onPageChanged: _handlePageChange,
-                  );}
-                // By default, show a loading spinner.
-                return CircularProgressIndicator();
-              })
-        )
-    );
+            appBar: AppBar(
+                centerTitle: true,
+                title: new Text(
+                  _index.toString(),
+                )),
+            body: FutureBuilder<List<Vocabulary>>(
+                future: futureVocabulary,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    Vocabulary v = snapshot.data[_index];
+                    return PageView.builder(
+                      itemBuilder: (context, position) {
+                        return Container(
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text((v.word + ' (' + v.type + ')'),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 40,
+                                        fontWeight: FontWeight.bold)),
+                                Text(('Definition: ' + v.definition),
+                                    style: TextStyle(fontSize: 20))
+                              ]),
+                        );
+                      },
+                      itemCount: snapshot.data.length,
+                      controller: _controller,
+                      onPageChanged: _handlePageChange,
+                    );
+                  }
+                  // By default, show a loading spinner.
+                  return Center(child: CircularProgressIndicator());
+                })));
   }
 }
