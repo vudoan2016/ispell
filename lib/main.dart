@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,8 +7,9 @@ class Vocabulary {
   final String word;
   final String type;
   final String definition;
+  final String usage;
 
-  Vocabulary({this.word, this.type, this.definition});
+  Vocabulary({this.word, this.type, this.definition, this.usage});
 
   String toString() {
     return "Word: $word, price: $type, today gain: $definition";
@@ -15,10 +17,10 @@ class Vocabulary {
 
   factory Vocabulary.fromJson(Map<String, dynamic> json) {
     return Vocabulary(
-      word: json['Word'],
-      type: json['Type'],
-      definition: json['Definition'],
-    );
+        word: json['Word'],
+        type: json['Type'],
+        definition: json['Definition'],
+        usage: json['Usage']);
   }
 }
 
@@ -62,7 +64,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Future<List<Vocabulary>> futureVocabulary;
-  int _index = 0;
 
   PageController _controller = PageController(
     initialPage: 0,
@@ -80,8 +81,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void _handlePageChange(int index) => setState(() => _index = index);
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -96,36 +95,36 @@ class _MyHomePageState extends State<MyHomePage> {
           primarySwatch: Colors.blue,
         ),
         home: Scaffold(
-            appBar: AppBar(
-                centerTitle: true,
-                title: new Text(
-                  _index.toString(),
-                )),
             body: FutureBuilder<List<Vocabulary>>(
                 future: futureVocabulary,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    Vocabulary v = snapshot.data[_index];
-                    return PageView.builder(
-                      itemBuilder: (context, position) {
-                        return Container(
-                          child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text((v.word + ' (' + v.type + ')'),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 40,
-                                        fontWeight: FontWeight.bold)),
-                                Text(('Definition: ' + v.definition),
-                                    style: TextStyle(fontSize: 20))
-                              ]),
-                        );
-                      },
-                      itemCount: snapshot.data.length,
-                      controller: _controller,
-                      onPageChanged: _handlePageChange,
+                    final double height = MediaQuery.of(context).size.height;
+                    return CarouselSlider(
+                      options: CarouselOptions(
+                        height: height,
+                        viewportFraction: 1.0,
+                        enlargeCenterPage: false,
+                      ),
+                      items: snapshot.data
+                          .map((v) => Container(
+                                  child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                    Text((v.word + ' (' + v.type + ')'),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 40,
+                                            fontWeight: FontWeight.bold)),
+                                    Text(('Definition: ' + v.definition),
+                                        style: TextStyle(fontSize: 20)),
+                                    Text(('Usage: ' + v.usage),
+                                        style: TextStyle(fontSize: 20))
+                                  ])))
+                          .toList(),
                     );
                   }
                   // By default, show a loading spinner.
